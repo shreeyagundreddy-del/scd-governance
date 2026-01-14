@@ -1,0 +1,33 @@
+CREATE OR REPLACE FUNCTION audit_version_history(
+    p_customer_id VARCHAR,
+    p_start DATE,
+    p_end DATE
+)
+RETURNS TABLE (
+    customer_sk BIGINT,
+    version_number INT,
+    address VARCHAR,
+    effective_from DATE,
+    effective_to DATE,
+    change_reason TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+	    dc.customer_sk, 
+	    dc.version_number,
+		dc.address,
+        dc.effective_from, 
+		dc.effective_to, 
+		dc.change_reason
+    FROM dim_customer dc
+    WHERE dc.customer_id = p_customer_id
+      AND dc.effective_from <= p_end
+      AND dc.effective_to >= p_start
+    ORDER BY version_number;
+END;
+$$;
+
+

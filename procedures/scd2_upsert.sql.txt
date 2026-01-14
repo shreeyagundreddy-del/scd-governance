@@ -1,0 +1,46 @@
+CREATE OR REPLACE PROCEDURE scd2_upsert_customer(
+    p_customer_id VARCHAR,
+    p_name VARCHAR,
+    p_address VARCHAR,
+    p_user VARCHAR,
+    p_reason TEXT,
+    p_source VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_version INT;
+BEGIN
+    SELECT version_number
+    INTO v_version
+    FROM dim_customer
+    WHERE customer_id = p_customer_id
+      AND is_current_flag = TRUE;
+
+    -- Close existing record
+    UPDATE dim_customer
+    SET effective_to = CURRENT_DATE - 1,
+        is_current_flag = FALSE
+    WHERE customer_id = p_customer_id
+      AND is_current_flag = TRUE;
+
+    -- Insert new version
+    INSERT INTO dim_customer (
+        customer_id, customer_name, address,
+        version_number, effective_from, effective_to,
+        is_current_flag, created_by, change_reason, change_source
+    )
+    VALUES (
+        p_customer_id,
+        p_name,
+        p_address,
+        COALESCE(v_version, 0) + 1,
+        CURRENT_DATE,
+        '9999-12-31',
+        TRUE,
+        p_user,
+        p_reason,
+        p_source
+    );
+END;
+$$;

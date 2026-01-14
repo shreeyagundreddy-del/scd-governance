@@ -1,0 +1,20 @@
+CREATE TABLE dim_customer (
+    customer_sk      BIGSERIAL PRIMARY KEY,   -- surrogate key
+    customer_id      VARCHAR(50) NOT NULL,    -- natural key
+
+    customer_name    VARCHAR(200),
+    address          VARCHAR(300),
+
+    version_number   INT NOT NULL,
+    effective_from   DATE NOT NULL,
+    effective_to     DATE NOT NULL,
+    is_current_flag  BOOLEAN NOT NULL,
+
+    created_by       VARCHAR(50),
+    approved_by      VARCHAR(50),
+    approval_date    DATE,
+    change_reason    TEXT,
+    change_source    VARCHAR(50),
+
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

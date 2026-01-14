@@ -1,0 +1,15 @@
+CREATE OR REPLACE PROCEDURE approve_version(
+    p_customer_sk BIGINT,
+    p_approver VARCHAR,
+    p_reason TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE dim_customer
+    SET approved_by = p_approver,
+        approval_date = CURRENT_DATE,
+        change_reason = p_reason
+    WHERE customer_sk = p_customer_sk;
+END;
+$$;
